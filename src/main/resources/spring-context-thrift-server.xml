@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <!-- zookeeper -->
+    <bean id="thriftZookeeper" class="com.demo.thrift.zookeeper.ZookeeperFactory" destroy-method="close">
+        <property name="connectString" value="127.0.0.1:2181"/>
+        <property name="namespace" value="demo/thrift-service"/>
+    </bean>
+    <bean id="sericeAddressReporter" class="com.demo.thrift.support.impl.DynamicAddressReporter" destroy-method="close">
+        <property name="zookeeper" ref="thriftZookeeper"/>
+    </bean>
+    <bean id="userService" class="com.demo.service.UserServiceImpl"/>
+    <bean class="com.demo.thrift.ThriftServiceServerFactory" destroy-method="close">
+        <property name="service" ref="userService"/>
+        <property name="configPath" value="UserServiceImpl"/>
+        <property name="port" value="9090"/>
+        <property name="addressReporter" ref="sericeAddressReporter"/>
+    </bean>
+
+</beans>
